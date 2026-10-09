@@ -1,6 +1,6 @@
 use crate::MultiWriter;
 use futures::{prelude::*, stream::FuturesUnordered, AsyncRead, AsyncWrite};
-use genawaiter::rc::Gen;
+use genawaiter::sync::Gen;
 use std::{io, iter::FromIterator};
 
 #[derive(Debug)]
@@ -15,17 +15,17 @@ pub enum CopyEvent {
     SourceFailure(io::Error),
 }
 
-impl<W: AsyncWrite + Unpin> MultiWriter<W> {
+impl<W: AsyncWrite + Send + Unpin> MultiWriter<W> {
     /// Copies bytes from the source to each writer concurrently.
     ///
     /// # Notes
     ///
     /// When a writer fails, it is removed from the slab.
-    pub fn copy<'a, R: AsyncRead + Unpin + 'a>(
+    pub fn copy<'a, R: AsyncRead + Send + Unpin + 'a>(
         &'a mut self,
         mut reader: R,
         buf: &'a mut [u8],
-    ) -> impl Stream<Item = CopyEvent> + 'a {
+    ) -> impl Stream<Item = CopyEvent> + Send + 'a {
         Gen::new(|co| {
             async move {
                 let &mut Self { ref mut subscribed, ref mut drop_list } = self;
