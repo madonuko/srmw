@@ -13,6 +13,6 @@ repository = "https://github.com/pop-os/srmw"
 [dependencies]
 async-std = "1"
 futures = "0.3"
-genawaiter = { version = "0.2", features = ["futures03"]}
+genawaiter = { version = "0.99", features = ["futures03"] }
 slab = "0.4"
-thiserror = "1"
+thiserror = "2"
